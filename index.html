@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Montre personnalisable</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <style>
+    body {
+      background-color: #130c42;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: Poppins, sans-serif;
+    }
+
+    model-viewer {
+      width: 100vw;
+      height: 80vh;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+      justify-content: center;
+    }
+
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 16px;
+      background-color: #4f31f1;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #3d9ff4;
+    }
+  </style>
+</head>
+class="css-17pzig5"
+<body>
+<script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.93/build/spline-viewer.js"></script>
+  <model-viewer id="model" src="./compressed_1746649888230_watchbracelet01_v3.1_Cycles copie.glb" camera-controls interaction-prompt="none"
+    shadow-intensity="1" shadow-softness="1" exposure="1" render-scale="2" environment-image="./neon_photostudio_2k.hdr"
+    tone-mapping="aces" camera-orbit="0deg 75deg 2.5m" ar ar-modes="scene-viewer quick-look webxr">
+  </model-viewer>
+
+  <div class="controls">
+    <button onclick="changePartColor('bracelet_Mat', [1, 0, 0, 1])">Bracelet Rouge</button>
+    <button onclick="changePartColor('metal_Mat', [0, 1, 0, 1])">Boîtier Vert</button>
+    <button onclick="changePartColor('body_Mat', [0, 0, 1, 1])">Cadran Bleu</button>
+    <button onclick="makeGlassTransparent()">Verre Transparent</button>
+    <button onclick="resetAll()">Reset</button>
+  </div>
+
+  <script>
+    const modelViewer = document.getElementById("model");
+    const originalColors = {};
+
+    modelViewer.addEventListener('load', () => {
+      const materials = modelViewer.model.materials;
+
+      materials.forEach(mat => {
+        originalColors[mat.name] = {
+          baseColor: [...mat.pbrMetallicRoughness.baseColorFactor],
+          alphaMode: mat.alphaMode,
+          alphaCutoff: mat.alphaCutoff
+        };
+      });
+    });
+
+    function changePartColor(materialName, colorArray) {
+      const material = modelViewer.model.materials.find(m => m.name === materialName);
+      if (material) {
+        material.pbrMetallicRoughness.setBaseColorFactor(colorArray);
+      } else {
+        console.warn(`Matériau "${materialName}" non trouvé.`);
+      }
+    }
+
+    function makeGlassTransparent() {
+      const mat = modelViewer.model.materials.find(m => m.name === 'glass_Mat');
+      if (mat) {
+        mat.alphaMode = 'BLEND';
+        mat.pbrMetallicRoughness.setBaseColorFactor([1, 1, 1, 0.1]); // blanc très transparent
+      }
+    }
+
+    function resetAll() {
+      const materials = modelViewer.model.materials;
+      materials.forEach(mat => {
+        const saved = originalColors[mat.name];
+        if (saved) {
+          mat.pbrMetallicRoughness.setBaseColorFactor(saved.baseColor);
+          if (saved.alphaMode) mat.alphaMode = saved.alphaMode;
+          if (saved.alphaCutoff !== undefined) mat.alphaCutoff = saved.alphaCutoff;
+        }
+      });
+    }
+  </script>
+
+
+</body>
+
+</html>
